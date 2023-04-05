@@ -6,7 +6,7 @@ def getFomAI(que):
     import os
     import openai
 
-    openai.api_key = "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"
+    openai.api_key = "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"
 
     response = openai.Completion.create(
         model="text-davinci-003",
