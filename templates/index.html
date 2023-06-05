@@ -78,10 +78,34 @@
         font-size: 14px;
       }
     }
+
+    .tarot-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      background-color: #333;
+      padding: 20px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+
+    /* Tarot card image */
+    .tarot-card {
+      width: calc(20% - 15px);
+      display: none;
+    }
+
+    /* Responsive tarot card layout */
+    @media screen and (max-width: 768px) {
+      .tarot-card {
+        width: calc(50% - 15px);
+      }
+    }
   </style>
 </head>
 
-<body>
+<body onload="addTarotCards()">
   <div class="form-container" style="margin-top: 20%;" id="form">
     <div class="form-group">
       <input type="text" placeholder="Enter your question" id="msg">
@@ -93,11 +117,31 @@
     <img src="/static/back.jpeg" alt="Your image">
   </div>
 
+  <div class="tarot-container" id="tarot-cards">
+    <!-- Add tarot card images -->
+  </div>
+
   <div class="output-box" style="visibility: hidden;" id="output">
     <p id="out"></p>
   </div>
-  
+
+
   <script>
+
+    function addTarotCards() {
+      const tarotCardsContainer = document.getElementById("tarot-cards");
+
+      for (let i = 0; i <= 77; i++) {
+        const tarotCard = document.createElement("img");
+        tarotCard.setAttribute("class", "tarot-card");
+        tarotCard.setAttribute("src", `/static/cards/${i}.jpg`);
+        tarotCard.setAttribute("alt", `Tarot Card ${i}`);
+        tarotCardsContainer.appendChild(tarotCard);
+      }
+    }
+
+    // Add tarot cards on page load
+    addTarotCards();
     $(document).ready(function () {
 
       $('#send-btn').on('click', function () {
@@ -109,6 +153,31 @@
         document.getElementById('form').style.marginTop = "3%";
         document.getElementById('img').style.visibility = "visible";
 
+        function shuffleAndShowCards() {
+          const cards = $(".tarot-card");
+          let shuffledCards = cards.toArray().sort(() => 0.5 - Math.random());
+          cards.each(function (index, card) {
+            const randomX = Math.random() * 50 - 25; // Random number between -25 and 25
+            const randomY = Math.random() * 50 - 25; // Random number between -25 and 25
+            $(card).css("transform", `translate(${randomX}px, ${randomY}px)`);
+          });
+
+          // Reset animation after a short delay
+          setTimeout(() => {
+            cards.css("transform", "translate(0, 0)");
+          }, 1000);
+
+          // Display shuffled cards after the animation is complete
+          setTimeout(() => {
+            shuffledCards.slice(0, 10).forEach(card => {
+              $(card).css("display", "block");
+            });
+          }, 1500);
+          shuffledCards.slice(0, 10).forEach(card => {
+            $(card).css("display", "block");
+          });
+        }
+
         $.ajax({
           type: "POST",
           url: "/",
@@ -119,8 +188,8 @@
             console.log(response.text);
             $("#img").empty();
             document.getElementById("output").style.visibility = "visible";
+            shuffleAndShowCards();
             $("#out").append(response.text)
-            
             // do something with the response
           }
         });
